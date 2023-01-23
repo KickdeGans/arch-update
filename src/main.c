@@ -1,23 +1,95 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 
-int main()
+void parse_args(int argc, char* argv[])
 {
-    if (system("sudo pacman -Syu") != 0)
+    if (argc == 1)
     {
-        printf("UPDATE FAILED.\n");
-        exit(1);
+        if (getuid())
+        {
+            printf("An update requires root privileges.\n");
+            exit(1);
+        }
+        if (system("sudo pacman -Syu") != 0)
+        {
+            printf("UPDATE FAILED.\n");
+            exit(1);
+        }
+        if (system("sudo mkinitcpio -P") != 0)
+        {
+            printf("KERNEL BUILD FAILED.\n");
+            exit(1);
+        }
+        if (system("sudo grub-mkconfig") != 0)
+        {
+            printf("GRUB INSTALL FAILED.\n");
+            exit(1);
+        }
     }
-    if (system("sudo mkinitcpio -P") != 0)
+
+    int sync = 0;
+    int ignore_errors = 0;
+    int help = 0;
+
+    for (int i = 1; i < argc; i++)
     {
-        printf("KERNEL BUILD FAILED.\n");
-        exit(1);
+        if (strcmp(argv[i], "--sync") == 0)
+        {
+            sync = 1;
+
+            continue;
+        }
+        if (strcmp(argv[i], "--ignore-errors") == 0)
+        {
+            ignore_errors = 1;
+
+            continue;
+        }
+        if (strcmp(argv[i], "--help") == 0)
+        {
+            help = 1;
+
+            continue;
+        } 
     }
-    if (system("sudo grub-mkconfig") != 0)
+
+    if (ignore_errors)
     {
-        printf("GRUB INSTALL FAILED.\n");
-        exit(1);
+        if (getuid())
+        {
+            printf("An update requires root privileges.\n");
+            exit(1);
+        }
+        if (sync)
+        {
+            system("sudo pacman -Syyu");
+        }
+        else
+        {
+            system("sudo pacman -Syu");
+        }
+
+        system("sudo mkinitcpio -P");
+
+        system("sudo grub-mkconfig");
     }
+
+    if (help)
+    {
+        printf("arch-update help menu:\n    ");
+        printf("--help:\n       ");
+        printf("Open help menu.\n    ");
+        printf("--sync:\n        ");
+        printf("Sync packages too.\n    ");
+        printf("--ignore-errors:\n        ");
+        printf("Ignore all errors and continue.\n");
+    }
+}
+int main(int argc, char* argv[])
+{
+    parse_args(argc, argv);
 
     return 0;
 }
