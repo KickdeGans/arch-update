@@ -3,6 +3,14 @@
 #include <unistd.h>
 #include <string.h>
 
+void print_info()
+{
+    system("pacman --version");
+    system("mkinitcpio --version");
+    system("grub-install --version");
+
+    printf("\n\n");
+}
 void parse_args(int argc, char* argv[])
 {
     if (argc == 1)
@@ -12,19 +20,22 @@ void parse_args(int argc, char* argv[])
             printf("An update requires root privileges.\n");
             exit(1);
         }
+
+        print_info();
+
         if (system("sudo pacman -Syu") != 0)
         {
-            printf("UPDATE FAILED.\n");
+            printf("\n\033[0;31mUPDATE FAILED.\033[0;37m\n");
             exit(1);
         }
         if (system("sudo mkinitcpio -P") != 0)
         {
-            printf("KERNEL BUILD FAILED.\n");
+            printf("\n\033[0;31mKERNEL BUILD FAILED.\033[0;37m\n");
             exit(1);
         }
         if (system("sudo grub-mkconfig") != 0)
         {
-            printf("GRUB INSTALL FAILED.\n");
+            printf("\n\033[0;31mGRUB INSTALL FAILED.\033[0;37m\n");
             exit(1);
         }
     }
@@ -52,7 +63,12 @@ void parse_args(int argc, char* argv[])
             help = 1;
 
             continue;
-        } 
+        }
+        else
+        {
+            printf("Option '%s' not understood.\n", argv[i]);
+            exit(1);
+        }
     }
 
     if (ignore_errors)
@@ -62,6 +78,9 @@ void parse_args(int argc, char* argv[])
             printf("An update requires root privileges.\n");
             exit(1);
         }
+
+        print_info();
+
         if (sync)
         {
             system("sudo pacman -Syyu");
@@ -74,6 +93,33 @@ void parse_args(int argc, char* argv[])
         system("sudo mkinitcpio -P");
 
         system("sudo grub-mkconfig");
+    }
+
+    if (sync && !ignore_errors)
+    {
+        if (getuid())
+        {
+            printf("An update requires root privileges.\n");
+            exit(1);
+        }
+
+        print_info();
+
+        if (system("sudo pacman -Syu") != 0)
+        {
+            printf("\n\033[0;31mUPDATE FAILED.\033[0;37m\n");
+            exit(1);
+        }
+        if (system("sudo mkinitcpio -P") != 0)
+        {
+            printf("\n\033[0;31mKERNEL BUILD FAILED.\033[0;37m\n");
+            exit(1);
+        }
+        if (system("sudo grub-mkconfig") != 0)
+        {
+            printf("\n\033[0;31mGRUB INSTALL FAILED.\033[0;37m\n");
+            exit(1);
+        }
     }
 
     if (help)
