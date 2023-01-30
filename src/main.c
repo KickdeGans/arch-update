@@ -33,7 +33,7 @@ void parse_args(int argc, char* argv[])
             printf("\n\033[0;31mKERNEL BUILD FAILED.\033[0;37m\n");
             exit(1);
         }
-        if (system("sudo grub-mkconfig") != 0)
+        if (system("set -e && exec grub-mkconfig -o /boot/grub/grub.cfg \"$@\"") != 0)
         {
             printf("\n\033[0;31mGRUB INSTALL FAILED.\033[0;37m\n");
             exit(1);
@@ -92,7 +92,7 @@ void parse_args(int argc, char* argv[])
 
         system("sudo mkinitcpio -P");
 
-        system("sudo grub-mkconfig");
+        system("set -e && exec grub-mkconfig -o /boot/grub/grub.cfg \"$@\"");
     }
 
     if (sync && !ignore_errors)
@@ -115,7 +115,7 @@ void parse_args(int argc, char* argv[])
             printf("\n\033[0;31mKERNEL BUILD FAILED.\033[0;37m\n");
             exit(1);
         }
-        if (system("sudo grub-mkconfig") != 0)
+        if (system("set -e && exec grub-mkconfig -o /boot/grub/grub.cfg \"$@\"") != 0)
         {
             printf("\n\033[0;31mGRUB INSTALL FAILED.\033[0;37m\n");
             exit(1);
