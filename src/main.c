@@ -80,7 +80,7 @@ void parse_args(int argc, char* argv[])
 
     if (nvidia_install)
     {
-        if (system("sudo pacman -S lib32-nvidia-utils lib32-opencl-nvidia opencl-nvidia nvidia nvidia-utils") != 0)
+        if (system("yes | sudo pacman -S lib32-nvidia-utils lib32-opencl-nvidia opencl-nvidia nvidia nvidia-utils && sudo nvidia-modprobe") != 0)
         {
             printf("\n\033[0;31mNVIDIA INSTALL FAILED.\033[0;37m\n");
             exit(1);
