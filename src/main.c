@@ -23,7 +23,7 @@ void parse_args(int argc, char* argv[])
 
         print_info();
 
-        if (system("sudo pacman -Syu") != 0)
+        if (system("yes | sudo pacman -Syu && yes | sudo pacman -Syy mkinitcpio linux") != 0)
         {
             printf("\n\033[0;31mUPDATE FAILED.\033[0;37m\n");
             exit(1);
@@ -43,6 +43,7 @@ void parse_args(int argc, char* argv[])
     int sync = 0;
     int ignore_errors = 0;
     int help = 0;
+    int nvidia_install = 0;
 
     for (int i = 1; i < argc; i++)
     {
@@ -64,9 +65,24 @@ void parse_args(int argc, char* argv[])
 
             continue;
         }
+        if (strcmp(argv[i], "--nvidia-install") == 0)
+        {
+            nvidia_install = 1;
+
+            continue;
+        }
         else
         {
             printf("Option '%s' not understood.\n", argv[i]);
+            exit(1);
+        }
+    }
+
+    if (nvidia_install)
+    {
+        if (system("sudo pacman -S lib32-nvidia-utils lib32-opencl-nvidia opencl-nvidia nvidia nvidia-utils") != 0)
+        {
+            printf("\n\033[0;31mNVIDIA INSTALL FAILED.\033[0;37m\n");
             exit(1);
         }
     }
@@ -83,11 +99,11 @@ void parse_args(int argc, char* argv[])
 
         if (sync)
         {
-            system("sudo pacman -Syyu");
+            system("yes | sudo pacman -Syyu && yes | sudo pacman -Syy mkinitcpio linux");
         }
         else
         {
-            system("sudo pacman -Syu");
+            system("yes | sudo pacman -Syu && yes | sudo pacman -Syy mkinitcpio linux");
         }
 
         system("sudo mkinitcpio -P");
@@ -105,7 +121,7 @@ void parse_args(int argc, char* argv[])
 
         print_info();
 
-        if (system("sudo pacman -Syu") != 0)
+        if (system("yes | sudo pacman -Syu && yes | sudo pacman -Syy mkinitcpio linux") != 0)
         {
             printf("\n\033[0;31mUPDATE FAILED.\033[0;37m\n");
             exit(1);
