@@ -44,6 +44,7 @@ void parse_args(int argc, char* argv[])
     int ignore_errors = 0;
     int help = 0;
     int nvidia_install = 0;
+    int fix_kernel = 0;
 
     for (int i = 1; i < argc; i++)
     {
@@ -71,11 +72,27 @@ void parse_args(int argc, char* argv[])
 
             continue;
         }
+        if (strcmp(argv[i], "--fix-kernel") == 0)
+        {
+            fix_kernel = 1;
+
+            continue;
+        }
         else
         {
             printf("Option '%s' not understood.\n", argv[i]);
             exit(1);
         }
+    }
+
+    if (fix_kernel)
+    {
+        if (!system("yes | sudo pacman -Syy mkinitcpio linux && set -e && exec grub-mkconfig -o /boot/grub/grub.cfg"))
+        {
+            printf("\n\033[0;31mKERNEL FIX FAILED.\033[0;37m\n");
+            exit(1);
+        }
+        exit(0);
     }
 
     if (nvidia_install)
@@ -99,11 +116,11 @@ void parse_args(int argc, char* argv[])
 
         if (sync)
         {
-            system("yes | sudo pacman -Syyu && yes | sudo pacman -Syy mkinitcpio linux");
+            system("yes | sudo pacman -Syyu");
         }
         else
         {
-            system("yes | sudo pacman -Syu && yes | sudo pacman -Syy mkinitcpio linux");
+            system("yes | sudo pacman -Syu");
         }
 
         system("sudo mkinitcpio -P");
@@ -121,7 +138,7 @@ void parse_args(int argc, char* argv[])
 
         print_info();
 
-        if (system("yes | sudo pacman -Syu && yes | sudo pacman -Syy mkinitcpio linux") != 0)
+        if (system("yes | sudo pacman -Syu") != 0)
         {
             printf("\n\033[0;31mUPDATE FAILED.\033[0;37m\n");
             exit(1);
