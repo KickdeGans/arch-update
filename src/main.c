@@ -23,7 +23,7 @@ void parse_args(int argc, char* argv[])
 
         print_info();
 
-        if (system("yes | sudo pacman -Syu && yes | sudo pacman -Syy mkinitcpio linux") != 0)
+        if (system("yes | sudo pacman -Syu") != 0)
         {
             printf("\n\033[0;31mUPDATE FAILED.\033[0;37m\n");
             exit(1);
@@ -87,7 +87,7 @@ void parse_args(int argc, char* argv[])
 
     if (fix_kernel)
     {
-        if (!system("yes | sudo pacman -Syy mkinitcpio linux && set -e && exec grub-mkconfig -o /boot/grub/grub.cfg"))
+        if (system("yes | sudo pacman -Syy mkinitcpio linux && set -e && exec grub-mkconfig -o /boot/grub/grub.cfg") != 0)
         {
             printf("\n\033[0;31mKERNEL FIX FAILED.\033[0;37m\n");
             exit(1);
@@ -163,7 +163,11 @@ void parse_args(int argc, char* argv[])
         printf("--sync:\n        ");
         printf("Sync packages too.\n    ");
         printf("--ignore-errors:\n        ");
-        printf("Ignore all errors and continue.\n");
+        printf("Ignore all errors and continue.\n    ");
+        printf("--nvidia-install:\n        ");
+        printf("Install proprietary nvidia drivers\n    ");
+        printf("--fix-kernel:\n        ");
+        printf("Fix kernel\n");
     }
 }
 int main(int argc, char* argv[])
